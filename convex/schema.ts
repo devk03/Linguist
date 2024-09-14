@@ -32,8 +32,6 @@ export default defineSchema({
   }).index("bySessionId", ["sessionId"]),
   videos: defineTable({
     title: v.string(),
-    description: v.string(),
-    filePath: v.string(),
-    transcript: v.string(),
+    chunkIds: v.array(v.string()),
   }),
 });

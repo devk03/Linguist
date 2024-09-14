@@ -46,3 +46,18 @@ export const clear = mutation({
     await Promise.all(messages.map((message) => ctx.db.delete(message._id)));
   },
 });
+
+export const generateUploadUrl = mutation(async (ctx) => {
+  return await ctx.storage.generateUploadUrl();
+});
+
+export const postVideoData = mutation({
+  args: { videoId: v.id("_storage"), title: v.string(), chunkIds: v.array(v.string()) },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("videos", {
+      title: args.title,
+      chunkIds: args.chunkIds,
+    });
+  },
+});
+
