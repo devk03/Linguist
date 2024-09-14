@@ -1,13 +1,24 @@
-{/* <div className="flex justify-center mb-12">
-<ConvexAiChat
-  convexUrl={import.meta.env.VITE_CONVEX_URL as string}
-  name="Linguist"
-  infoMessage="Ask Linguist anything about language learning, in any language."
-  welcomeMessage="Hello! How can I assist you with your language learning journey today?"
-  renderTrigger={(onClick) => (
-    <Button onClick={onClick} className="text-lg px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white">
-      Chat with Linguist
-    </Button>
-  )}
-/>
-</div> */}
+import React from 'react';
+import ReactPlayer from 'react-player';
+
+const VideoPage: React.FC = () => {
+  return (
+    <div className="video-page">
+      <h1>Video Page</h1>
+      <div className="video-player">
+        <ReactPlayer
+          url="/cropped_video.mp4" 
+          width="70%"
+          height="90%"
+          controls={true}
+        />
+      </div>
+      {/* Placeholder for chat or other components */}
+      <div className="additional-components-placeholder">
+        Additional Components Go Here
+      </div>
+    </div>
+  );
+};
+
+export default VideoPage;
