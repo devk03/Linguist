@@ -11,11 +11,15 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        'sans': ['Poppins', 'sans-serif'],
+        'heading': ['Montserrat', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
+        background: "#000000",
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
