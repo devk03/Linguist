@@ -83,22 +83,29 @@ export function Dialog({
     setScrolled(false);
   };
 
-  // Define the mutation
+  // Define the action
   const sendMessage = useAction(api.functions.chat.send);
 
   const handleSend = async (event: FormEvent) => {
-    event.preventDefault();
+    event.preventDefault(); // Prevent the default form submission
     if (input.trim()) {
       const newMessage = {
         isViewer: true,
         text: input,
         _id: Date.now().toString(),
       };
-      const response = await sendMessage({ text: input, isViewer: true });
-      console.log(response);
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setInput("");
-      setScrolled(false);
+      try {
+        const responseMessage = await sendMessage({
+          text: input,
+          isViewer: true,
+        });
+        setMessages((prevMessages) => [...prevMessages, responseMessage]);
+        setInput("");
+        setScrolled(false);
+      } catch (error) {
+        console.error("Failed to send message:", error);
+      }
     }
   };
 
@@ -194,7 +201,9 @@ export function Dialog({
       </div>
       <form
         className="border-t-neutral-200 dark:border-t-neutral-800 border-solid border-0 border-t-[1px] flex"
-        onSubmit={handleSend}
+        onSubmit={(event) => {
+          void handleSend(event);
+        }}
       >
         <input
           className="w-full bg-white dark:bg-black border-none text-[1rem] pl-4 py-3 outline-none"

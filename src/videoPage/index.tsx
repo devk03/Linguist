@@ -24,12 +24,12 @@ const VideoPage: React.FC = () => {
         <div className="w-1/6">
           <ConvexAiChat
             convexUrl={import.meta.env.VITE_CONVEX_URL as string}
-            name="Lucky AI Bot"
+            name="Linguist"
             infoMessage="AI can make mistakes. Verify answers."
             welcomeMessage="Hey there, what can I help you with?"
             renderTrigger={(onClick) => (
               <Button onClick={onClick} className="w-full">
-                Open AI chat
+                Ask Linguist
               </Button>
             )}
           />
