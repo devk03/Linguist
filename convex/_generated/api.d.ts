@@ -17,6 +17,8 @@ import type {
 import type * as functions_chat from "../functions/chat.js";
 import type * as functions_video from "../functions/video.js";
 import type * as functions_videoChunking_videoChunking from "../functions/videoChunking/videoChunking.js";
+import type * as helpers_chunking from "../helpers/chunking.js";
+import type * as helpers_fetchvideo from "../helpers/fetchvideo.js";
 import type * as helpers from "../helpers.js";
 import type * as ingest_load from "../ingest/load.js";
 import type * as langchain_db from "../langchain/db.js";
@@ -35,6 +37,8 @@ declare const fullApi: ApiFromModules<{
   "functions/chat": typeof functions_chat;
   "functions/video": typeof functions_video;
   "functions/videoChunking/videoChunking": typeof functions_videoChunking_videoChunking;
+  "helpers/chunking": typeof helpers_chunking;
+  "helpers/fetchvideo": typeof helpers_fetchvideo;
   helpers: typeof helpers;
   "ingest/load": typeof ingest_load;
   "langchain/db": typeof langchain_db;

@@ -61,3 +61,16 @@ export const postVideoData = mutation({
   },
 });
 
+export const postChunkData = mutation({
+  args: { videoId: v.id("_storage"), chunkId: v.string(), text: v.string(), start: v.number(), end: v.number() },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("chunks", {
+      videoId: args.videoId,
+      chunkId: args.chunkId,
+      text: args.text,
+      start: args.start,
+      end: args.end,
+    });
+  },
+});
+

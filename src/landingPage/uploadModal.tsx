@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import {
-  ConvexProvider,
-  ConvexReactClient,
-  useMutation,
-  useQuery,
-} from "convex/react";import { api } from "../../convex/_generated/api";
-// import { names } from '../../node_modules/@aws-sdk/client-sts/dist-cjs/index';
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useNavigate } from 'react-router-dom';
+import { Id } from '../../convex/_generated/dataModel';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -16,10 +13,11 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const generateUploadUrl = useMutation(api.messages.generateUploadUrl);
   const postVideoData = useMutation(api.messages.postVideoData);
-
+  const navigate = useNavigate();
   const handleUpload = async (file: File) => {
     try {
       const name = file.name;
+
 
       // Step 1: Get a short-lived upload URL
       const postUrl = await generateUploadUrl();
@@ -34,7 +32,6 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
       if (!result.ok) {
         throw new Error('Upload to storage failed');
       }
-
       const { storageId } = await result.json();
 
       // Step 3: Save the newly allocated storage id to the database
@@ -42,7 +39,11 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
       await postVideoData({ videoId: storageId, title: name, chunkIds: chunkIDs });
 
       console.log('Upload successful');
+
+
       onClose();
+      // Navigate to the video page after successful upload
+      navigate('/video', { state: { videoId: storageId } });
     } catch (error) {
       console.error('Error uploading file:', error);
     }

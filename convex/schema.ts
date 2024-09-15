@@ -34,4 +34,11 @@ export default defineSchema({
     title: v.string(),
     chunkIds: v.array(v.string()),
   }),
+  chunks: defineTable({
+    videoId: v.id("_storage"),
+    chunkId: v.string(),
+    text: v.string(),
+    start: v.number(),
+    end: v.number(),
+  }),
 });

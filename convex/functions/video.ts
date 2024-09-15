@@ -1,33 +1,14 @@
-import { mutation } from "../_generated/server";
-import { query } from "../_generated/server";
+import { action, query, QueryCtx } from "../_generated/server";
 import { v } from "convex/values";
+import { downloadVideo } from "../helpers/fetchvideo";
 
-export const post = mutation({
-    args: {
-        title: v.string(),
-        chunkIds: v.array(v.string()),
-    },
-    handler: async (ctx, args) => {
-        const newTaskId = await ctx.db.insert("videos", {
-            title: args.title,
-            chunkIds: args.chunkIds,
-        });
-        return newTaskId;
-    },
+//function to get the video url from the file storage given an id
+export const backend = query({
+    args: { id: v.id("_storage") },
+    async handler(ctx, args) {
+    }
 });
 
-export const findByTitle = query({
-    args: {
-        title: v.string(),
-    },
-    handler: async (ctx, args) => {
-        const video = await ctx.db.query("videos")
-            .filter((q) => q.eq(q.field("title"), args.title))
-            .collect();
-        if (video.length === 0) {
-            return null;
-        }
-        return video;
-    },
-});
+//function to fetch the video from the url and save it to the file storage use regular fetch
+
 
