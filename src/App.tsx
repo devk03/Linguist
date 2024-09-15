@@ -6,10 +6,9 @@ view video with chat and all that
 
 */
 
-
 import LandingPage from "./landingPage";
 import VideoPage from "./videoPage";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {
   return (

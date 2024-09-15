@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
-import { useAction, useMutation } from "convex/react";
+import React, { useState } from "react";
+import {
+  ConvexProvider,
+  ConvexReactClient,
+  useAction,
+  useMutation,
+} from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -15,43 +20,11 @@ const UploadModal: React.FC<UploadModalProps> = ({
   onUpload,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const navigate = useNavigate();
 
-  const processVideo = useAction(api.functions.serve.processVideo);
-  const handleUpload = async (file: File) => {
-    const formData = new FormData();
-    
-    formData.append('video', file);
-
-    try {
-      // Upload the file to your server or cloud storage
-      const uploadResponse = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Upload failed');
-      }
-
-      //const { filePath } = await uploadResponse.json();
-
-      // Call the Convex action to process the video
-      const processResponse = await processVideo({formData});
-      console.log(processResponse);
-
-      if (processResponse.success) {
-        console.log('Video processed successfully');
-        onClose();
-      } else {
-        console.error('Video processing failed');
-      }
-    } catch (error) {
-      console.error('Error uploading and processing file:', error);
-    }
-    navigate('/video');
-  };
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = useAction(api.functions.serve.processVideo);
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (event.target.files && event.target.files.length > 0) {
       setSelectedFile(event.target.files[0]);
     }

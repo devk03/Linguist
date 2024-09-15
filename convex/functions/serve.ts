@@ -8,7 +8,7 @@ export const processVideo = action({
 
     const form2Data = new FormData();
     form2Data.append("video", formData, "input.mp4");
-
+    
     const response = await fetch("https://symphoniclabs--symphonet-vsr-modal-htn-model-upload-static-htn.modal.run", {
       method: 'POST',
       body: form2Data,
