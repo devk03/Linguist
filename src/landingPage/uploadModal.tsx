@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -7,6 +7,7 @@ interface UploadModalProps {
 
 const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const navigate = useNavigate();
 
   const handleUpload = async (file: File) => {
     const formData = new FormData();
@@ -17,22 +18,25 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
       console.log(key, value);
     }
 
-    try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      // Handle response
-      if (response.ok) {
-        console.log('Upload successful');
-        onClose();
-      } else {
-        console.error('Upload failed');
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }
+    navigate('/video');
+  //   try {
+  //     const response = await fetch('/api/upload', {
+  //       method: 'POST',
+  //       body: formData,
+  //     });
+  //     // Handle response
+  //     if (response.ok) {
+  //       console.log('Upload successful');
+  //       onClose();
+  //     } else {
+  //       console.error('Upload failed');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error uploading file:', error);
+  //   }
   };
+
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {

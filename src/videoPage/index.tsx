@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReactPlayer from "react-player";
 import { ConvexAiChat } from "@/aiChat";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface SubtitleProps {
   text: string[];
@@ -17,7 +17,7 @@ const SubtitleComponent: React.FC<SubtitleProps> = ({
   const currentIndex = Math.floor(currentTime / chunkDuration);
   const currentSubtitle = text[currentIndex] || "";
 
-  return <div className="mt-4 p-4 rounded">{currentSubtitle}</div>;
+  return <div className="mt-8 p-4 text-center w-full border-2 border-white rounded-lg bg-gray-900 h-48 flex justify-center items-center ">{currentSubtitle}</div>;
 };
 
 const VideoPage: React.FC = () => {
@@ -50,11 +50,11 @@ const VideoPage: React.FC = () => {
   const chunkDuration = 10; // 10 seconds per subtitle
 
   return (
-    <div className="video-page p-4">
-      <h1 className="text-2xl font-bold mb-4">Video Page</h1>
+    <div className="video-page p-4 bg-black h-screen w-screen">
+
       <div className="flex">
-        <div className="w-3/4 pr-4">
-          <div className="video-player">
+        <div className="w-3/4 pr-4 mt-4 ">
+          <div className="video-player border-2 border-white rounded-lg bg-gray-800 p-1">
             <ReactPlayer
               url="/cropped_video.mp4"
               width="100%"
@@ -62,12 +62,9 @@ const VideoPage: React.FC = () => {
               controls={true}
               onDuration={handleDuration}
               onProgress={handleProgress}
+              className="rounded-lg"
             />
-            {duration && (
-              <p className="mt-2">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </p>
-            )}
+
           </div>
           <SubtitleComponent
             text={subtitles}
@@ -75,17 +72,12 @@ const VideoPage: React.FC = () => {
             currentTime={currentTime}
           />
         </div>
-        <div className="w-1/6">
+        <div className="w-1/3 h-[calc(100vh-4rem)]">
           <ConvexAiChat
             convexUrl={import.meta.env.VITE_CONVEX_URL as string}
             name="Linguist"
             infoMessage="AI can make mistakes. Verify answers."
             welcomeMessage="Hey there, what can I help you with?"
-            renderTrigger={(onClick) => (
-              <Button onClick={onClick} className="w-full">
-                Ask Linguist
-              </Button>
-            )}
           />
         </div>
       </div>
