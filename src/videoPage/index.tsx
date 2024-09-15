@@ -54,7 +54,11 @@ const VideoPage: React.FC = () => {
 
   return (
     <div className="video-page p-4">
-      <h1 className="text-2xl font-bold mb-4">Linguist</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        <a href="/" className="hover:underline">
+          Linguist
+        </a>
+      </h1>
       <div className="flex">
         <div className="w-3/4 pr-4">
           <div className="video-player">
