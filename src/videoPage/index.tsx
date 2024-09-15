@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import ReactPlayer from "react-player";
 import { ConvexAiChat } from "@/aiChat";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useLocation } from "react-router-dom";
 
 interface SubtitleProps {
   text: string[];
@@ -23,6 +25,8 @@ const SubtitleComponent: React.FC<SubtitleProps> = ({
 const VideoPage: React.FC = () => {
   const [duration, setDuration] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(0);
+  const location = useLocation();
+  const { videoUrl } = location.state as { videoUrl: string };
 
   const handleDuration = (duration: number) => {
     setDuration(duration);
@@ -51,12 +55,16 @@ const VideoPage: React.FC = () => {
 
   return (
     <div className="video-page p-4 bg-black h-screen w-screen">
-
+      <h1 className="text-2xl font-bold mb-4">
+        <a href="/" className="hover:underline">
+          Linguist
+        </a>
+      </h1>
       <div className="flex">
         <div className="w-3/4 pr-4 mt-4 ">
           <div className="video-player border-2 border-white rounded-lg bg-gray-800 p-1">
             <ReactPlayer
-              url="/cropped_video.mp4"
+              url={videoUrl}
               width="100%"
               height="auto"
               controls={true}
