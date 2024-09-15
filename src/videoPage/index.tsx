@@ -19,7 +19,7 @@ const SubtitleComponent: React.FC<SubtitleProps> = ({
   const currentIndex = Math.floor(currentTime / chunkDuration);
   const currentSubtitle = text[currentIndex] || "";
 
-  return <div className="mt-8 p-4 text-center w-full border-2 border-white rounded-lg bg-gray-900 h-48 flex justify-center items-center ">{currentSubtitle}</div>;
+  return <div className="mt-8 p-4 text-center w-full border-2 border-white rounded-lg bg-gray-900 h-48 flex justify-center items-center text-3xl">{currentSubtitle}</div>;
 };
 
 const VideoPage: React.FC = () => {
