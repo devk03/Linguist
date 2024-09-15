@@ -1,7 +1,6 @@
 import {
   FormEvent,
   ReactNode,
-  useCallback,
   useEffect,
   useRef,
   useState,
@@ -9,67 +8,44 @@ import {
 } from "react";
 import { ConvexProvider, ConvexReactClient, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { createPortal } from "react-dom";
-import { CloseIcon } from "./CloseIcon.js";
 import { InfoCircled } from "./InfoCircled.js";
 import { SendIcon } from "./SendIcon.js";
 import { SizeIcon } from "./SizeIcon.js";
+
+
 
 export function ConvexAiChat({
   infoMessage,
   name,
   welcomeMessage,
   convexUrl,
-  renderTrigger,
 }: {
   name: string;
   convexUrl: string;
   infoMessage: ReactNode;
   welcomeMessage: string;
-  renderTrigger: (onClick: () => void) => ReactNode;
 }) {
-  const [hasOpened, setHasOpened] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const handleCloseDialog = useCallback(() => {
-    setDialogOpen(false);
-  }, []);
   const client = useMemo(() => new ConvexReactClient(convexUrl), [convexUrl]);
 
   return (
     <ConvexProvider client={client}>
-      {renderTrigger(() => {
-        setHasOpened(true);
-        setDialogOpen(!dialogOpen);
-      })}
-      {hasOpened
-        ? createPortal(
-            <Dialog
-              infoMessage={infoMessage}
-              isOpen={dialogOpen}
-              name={name}
-              welcomeMessage={welcomeMessage}
-              onClose={handleCloseDialog}
-            />,
-            document.body
-          )
-        : null}
+      <Dialog
+        infoMessage={infoMessage}
+        name={name}
+        welcomeMessage={welcomeMessage}
+      />
     </ConvexProvider>
   );
 }
 
 export function Dialog({
   infoMessage,
-  isOpen,
   name,
   welcomeMessage,
-  onClose,
 }: {
   infoMessage: ReactNode;
-  isOpen: boolean;
   name: string;
   welcomeMessage: string;
-  onClose: () => void;
 }) {
   const [messages, setMessages] = useState([
     { isViewer: false, text: welcomeMessage, _id: "0" },
@@ -127,39 +103,22 @@ export function Dialog({
   return (
     <div
       className={
-        (isOpen ? "fixed" : "hidden") +
-        " rounded-xl flex flex-col bg-white dark:bg-black text-black dark:text-white " +
-        "m-4 right-0 bottom-0 max-w-[calc(100%-2rem)] overflow-hidden transition-all " +
+        "rounded-xl flex flex-col bg-gray-900 text-white border-white border-2 " +
+        "m-4 right-0 bottom-0 h-full w-full overflow-hidden transition-all " +
         "shadow-[0px_5px_40px_rgba(0,0,0,0.16),0_20px_25px_-5px_rgb(0,0,0,0.1)] " +
         "dark:shadow-[0px_5px_40px_rgba(0,0,0,0.36),0_20px_25px_-5px_rgb(0,0,0,0.3)] " +
         (expanded
           ? "left-0 top-0 z-[1000]"
-          : "w-full sm:max-w-[25rem] sm:min-w-[25rem] h-[30rem]")
+          : "w-full ")
       }
     >
-      <div className="flex justify-end">
-        <button className="group border-none bg-transparent p-0 pt-2 px-2 cursor-pointer hover:text-neutral-500 dark:hover:text-neutral-300">
-          <InfoCircled className="h-5 w-5" />
-          <span
-            className={
-              "invisible absolute z-50 cursor-auto group-hover:visible text-base text-black dark:text-white " +
-              "rounded-md shadow-[0px_5px_12px_rgba(0,0,0,0.32)] p-2 bg-white dark:bg-neutral-700 top-12 right-8 left-8 text-center"
-            }
-          >
-            {infoMessage}
-          </span>
+      <div className="flex justify-end p-4">
+        <button className="group border-none bg-transparent p-0 pt-2 px-2 cursor-pointerhover:text-neutral-300">
         </button>
         <button
-          className="border-none bg-transparent p-0 pt-2 px-2 cursor-pointer hover:text-neutral-500 dark:hover:text-neutral-300"
+          className="border-none bg-transparent p-0 pt-2 px-2 cursor-pointer hover:text-neutral-300"
           onClick={handleExpand}
         >
-          <SizeIcon className="h-5 w-5" />
-        </button>
-        <button
-          className="border-none bg-transparent p-0 pt-2 px-2 cursor-pointer hover:text-neutral-500 dark:hover:text-neutral-300"
-          onClick={onClose}
-        >
-          <CloseIcon className="h-5 w-5" />
         </button>
       </div>
       <div
@@ -186,8 +145,8 @@ export function Dialog({
                 className={
                   "w-full rounded-xl px-3 py-2 whitespace-pre-wrap " +
                   (message.isViewer
-                    ? "bg-neutral-200 dark:bg-neutral-800 "
-                    : "bg-neutral-100 dark:bg-neutral-900 ") +
+                    ? "bg-neutral-800 "
+                    : "bg-neutral-900 ") +
                   (message.isViewer && !expanded
                     ? "rounded-tr-none"
                     : "rounded-tl-none")
@@ -206,7 +165,7 @@ export function Dialog({
         }}
       >
         <input
-          className="w-full bg-white dark:bg-black border-none text-[1rem] pl-4 py-3 outline-none"
+          className="w-full bg-black border-none text-[1rem] pl-4 py-3 outline-none"
           autoFocus
           name="message"
           placeholder="Send a message"
