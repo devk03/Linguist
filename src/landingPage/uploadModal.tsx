@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -12,7 +12,19 @@ const UploadModal: React.FC<UploadModalProps> = ({
   onUpload,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const navigate = useNavigate();
 
+  const handleUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('video', file);
+
+    // Log FormData entries
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    navigate('/video');
+  };
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setSelectedFile(event.target.files[0]);
