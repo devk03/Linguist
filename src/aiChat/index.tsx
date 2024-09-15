@@ -1,35 +1,29 @@
 import {
-  ConvexProvider,
-  ConvexReactClient,
-  useMutation,
-  useQuery,
-} from "convex/react";
-import {
   FormEvent,
   ReactNode,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
+  useMemo,
 } from "react";
+import { ConvexProvider, ConvexReactClient, useAction } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { createPortal } from "react-dom";
-import { api } from "../../convex/_generated/api.js";
 import { CloseIcon } from "./CloseIcon.js";
 import { InfoCircled } from "./InfoCircled.js";
 import { SendIcon } from "./SendIcon.js";
 import { SizeIcon } from "./SizeIcon.js";
-import { TrashIcon } from "./TrashIcon.js";
 
 export function ConvexAiChat({
-  convexUrl,
   infoMessage,
   name,
   welcomeMessage,
+  convexUrl,
   renderTrigger,
 }: {
-  convexUrl: string;
   name: string;
+  convexUrl: string;
   infoMessage: ReactNode;
   welcomeMessage: string;
   renderTrigger: (onClick: () => void) => ReactNode;
@@ -40,17 +34,17 @@ export function ConvexAiChat({
   const handleCloseDialog = useCallback(() => {
     setDialogOpen(false);
   }, []);
+  const client = useMemo(() => new ConvexReactClient(convexUrl), [convexUrl]);
 
   return (
-    <>
+    <ConvexProvider client={client}>
       {renderTrigger(() => {
         setHasOpened(true);
         setDialogOpen(!dialogOpen);
       })}
       {hasOpened
         ? createPortal(
-            <ConvexAiChatDialog
-              convexUrl={convexUrl}
+            <Dialog
               infoMessage={infoMessage}
               isOpen={dialogOpen}
               name={name}
@@ -60,36 +54,6 @@ export function ConvexAiChat({
             document.body
           )
         : null}
-    </>
-  );
-}
-
-export function ConvexAiChatDialog({
-  convexUrl,
-  infoMessage,
-  isOpen,
-  name,
-  welcomeMessage,
-  onClose,
-}: {
-  convexUrl: string;
-  infoMessage: ReactNode;
-  isOpen: boolean;
-  name: string;
-  welcomeMessage: string;
-  onClose: () => void;
-}) {
-  const client = useMemo(() => new ConvexReactClient(convexUrl), [convexUrl]);
-
-  return (
-    <ConvexProvider client={client}>
-      <Dialog
-        infoMessage={infoMessage}
-        isOpen={isOpen}
-        name={name}
-        welcomeMessage={welcomeMessage}
-        onClose={onClose}
-      />
     </ConvexProvider>
   );
 }
@@ -107,25 +71,11 @@ export function Dialog({
   welcomeMessage: string;
   onClose: () => void;
 }) {
-  const sessionId = useSessionId();
-  const remoteMessages = useQuery(api.messages.list, { sessionId });
-  const messages = useMemo(
-    () =>
-      [{ isViewer: false, text: welcomeMessage, _id: "0" }].concat(
-        (remoteMessages ?? []) as {
-          isViewer: boolean;
-          text: string;
-          _id: string;
-        }[]
-      ),
-    [remoteMessages, welcomeMessage]
-  );
-  const sendMessage = useMutation(api.messages.send);
-  const clearMesages = useMutation(api.messages.clear);
-
+  const [messages, setMessages] = useState([
+    { isViewer: false, text: welcomeMessage, _id: "0" },
+  ]);
   const [expanded, setExpanded] = useState(false);
   const [isScrolled, setScrolled] = useState(false);
-
   const [input, setInput] = useState("");
 
   const handleExpand = () => {
@@ -133,16 +83,30 @@ export function Dialog({
     setScrolled(false);
   };
 
-  const handleSend = async (event: FormEvent) => {
-    event.preventDefault();
-    await sendMessage({ message: input, sessionId });
-    setInput("");
-    setScrolled(false);
-  };
+  // Define the action
+  const sendMessage = useAction(api.functions.chat.send);
 
-  const handleClearMessages = async () => {
-    await clearMesages({ sessionId });
-    setScrolled(false);
+  const handleSend = async (event: FormEvent) => {
+    event.preventDefault(); // Prevent the default form submission
+    if (input.trim()) {
+      const newMessage = {
+        isViewer: true,
+        text: input,
+        _id: Date.now().toString(),
+      };
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      try {
+        const responseMessage = await sendMessage({
+          text: input,
+          isViewer: true,
+        });
+        setMessages((prevMessages) => [...prevMessages, responseMessage]);
+        setInput("");
+        setScrolled(false);
+      } catch (error) {
+        console.error("Failed to send message:", error);
+      }
+    }
   };
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -174,10 +138,7 @@ export function Dialog({
       }
     >
       <div className="flex justify-end">
-        <button
-          className="group border-none bg-transparent p-0 pt-2 px-2 cursor-pointer hover:text-neutral-500 dark:hover:text-neutral-300"
-          onClick={() => void handleClearMessages()}
-        >
+        <button className="group border-none bg-transparent p-0 pt-2 px-2 cursor-pointer hover:text-neutral-500 dark:hover:text-neutral-300">
           <InfoCircled className="h-5 w-5" />
           <span
             className={
@@ -187,12 +148,6 @@ export function Dialog({
           >
             {infoMessage}
           </span>
-        </button>
-        <button
-          className="border-none bg-transparent p-0 pt-2 px-2 cursor-pointer hover:text-neutral-500 dark:hover:text-neutral-300"
-          onClick={() => void handleClearMessages()}
-        >
-          <TrashIcon className="h-5 w-5" />
         </button>
         <button
           className="border-none bg-transparent p-0 pt-2 px-2 cursor-pointer hover:text-neutral-500 dark:hover:text-neutral-300"
@@ -214,46 +169,41 @@ export function Dialog({
           setScrolled(true);
         }}
       >
-        {remoteMessages === undefined ? (
-          <>
-            <div className="animate-pulse rounded-md bg-black/10 h-5" />
-            <div className="animate-pulse rounded-md bg-black/10 h-9" />
-          </>
-        ) : (
-          messages.map((message) => (
-            <div key={message._id}>
+        {messages.map((message) => (
+          <div key={message._id}>
+            <div
+              className={
+                "text-neutral-400 text-sm " +
+                (message.isViewer && !expanded ? "text-right" : "")
+              }
+            >
+              {message.isViewer ? <>You</> : <>{name}</>}
+            </div>
+            {message.text === "" ? (
+              <div className="animate-pulse rounded-md bg-black/10 h-9" />
+            ) : (
               <div
                 className={
-                  "text-neutral-400 text-sm " +
-                  (message.isViewer && !expanded ? "text-right" : "")
+                  "w-full rounded-xl px-3 py-2 whitespace-pre-wrap " +
+                  (message.isViewer
+                    ? "bg-neutral-200 dark:bg-neutral-800 "
+                    : "bg-neutral-100 dark:bg-neutral-900 ") +
+                  (message.isViewer && !expanded
+                    ? "rounded-tr-none"
+                    : "rounded-tl-none")
                 }
               >
-                {message.isViewer ? <>You</> : <>{name}</>}
+                {message.text}
               </div>
-              {message.text === "" ? (
-                <div className="animate-pulse rounded-md bg-black/10 h-9" />
-              ) : (
-                <div
-                  className={
-                    "w-full rounded-xl px-3 py-2 whitespace-pre-wrap " +
-                    (message.isViewer
-                      ? "bg-neutral-200 dark:bg-neutral-800 "
-                      : "bg-neutral-100 dark:bg-neutral-900 ") +
-                    (message.isViewer && !expanded
-                      ? "rounded-tr-none"
-                      : "rounded-tl-none")
-                  }
-                >
-                  {message.text}
-                </div>
-              )}
-            </div>
-          ))
-        )}
+            )}
+          </div>
+        ))}
       </div>
       <form
         className="border-t-neutral-200 dark:border-t-neutral-800 border-solid border-0 border-t-[1px] flex"
-        onSubmit={(event) => void handleSend(event)}
+        onSubmit={(event) => {
+          void handleSend(event);
+        }}
       >
         <input
           className="w-full bg-white dark:bg-black border-none text-[1rem] pl-4 py-3 outline-none"
@@ -264,28 +214,12 @@ export function Dialog({
           onChange={(event) => setInput(event.target.value)}
         />
         <button
-          disabled={input === ""}
+          disabled={input.trim() === ""}
           className="bg-transparent border-0 px-4 py-3 enabled:cursor-pointer enabled:hover:text-sky-500"
         >
-          <SendIcon className="w-5 h-5" />
+          <SendIcon className="h-5 w-5" />
         </button>
       </form>
     </div>
   );
-}
-
-const STORE = (typeof window === "undefined" ? null : window)?.sessionStorage;
-const STORE_KEY = "ConvexSessionId";
-
-function useSessionId() {
-  const [sessionId] = useState(
-    () => STORE?.getItem(STORE_KEY) ?? crypto.randomUUID()
-  );
-
-  // Get or set the ID from our desired storage location, whenever it changes.
-  useEffect(() => {
-    STORE?.setItem(STORE_KEY, sessionId);
-  }, [sessionId]);
-
-  return sessionId;
 }
