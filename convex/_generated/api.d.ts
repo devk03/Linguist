@@ -15,6 +15,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as functions_chat from "../functions/chat.js";
+import type * as functions_serve from "../functions/serve.js";
 import type * as functions_video from "../functions/video.js";
 import type * as helpers from "../helpers.js";
 import type * as ingest_load from "../ingest/load.js";
@@ -31,6 +32,7 @@ import type * as serve from "../serve.js";
  */
 declare const fullApi: ApiFromModules<{
   "functions/chat": typeof functions_chat;
+  "functions/serve": typeof functions_serve;
   "functions/video": typeof functions_video;
   helpers: typeof helpers;
   "ingest/load": typeof ingest_load;
